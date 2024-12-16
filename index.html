@@ -1,13 +1,278 @@
-<html><head><base href="https://Mokie.com">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <base href="https://Mokie.com">
 <title>Mokie The Internet Scroller</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+    @keyframes sparkle {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    @keyframes particle {
+        0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-20px) translateX(var(--x-offset)) rotate(360deg); opacity: 0; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    @keyframes uwu-transition {
+        0% { filter: hue-rotate(0deg) brightness(1); }
+        50% { filter: hue-rotate(180deg) brightness(1.2); }
+        100% { filter: hue-rotate(270deg) brightness(1); }
+    }
+
+    @keyframes kawaii-loading {
+        0% { content: '(｡･ω･｡)'; }
+        25% { content: '(´･ω･`)'; }
+        50% { content: '(｀・ω・´)'; }
+        75% { content: '(´・ω・｀)'; }
+        100% { content: '(｡･ω･｡)'; }
+    }
+
     :root {
         --primary-color: #e94560;
         --background-color: #0a0a0a;
         --text-color: #ffffff;
         --secondary-color: #1a1a1a;
         --border-color: #000000;
+        
+        /* UwU mode colors - darker with lavender */
+        --uwu-primary: #c4a1ff;
+        --uwu-secondary: #9d81db;
+        --uwu-background: #13111a;
+        --uwu-text: #ffffff;
+        --uwu-border: #8465c7;
+        --uwu-accent: #e2d9ff;
+    }
+
+    /* UwU mode styles */
+    body.uwu-mode {
+        --primary-color: var(--uwu-primary);
+        --background-color: var(--uwu-background);
+        --secondary-color: #2a2435;
+        --border-color: var(--uwu-border);
+    }
+
+    body.uwu-mode {
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.uwu-mode .loading-animation::after {
+        animation: kawaii-loading 2s infinite steps(1);
+        content: '(｡･ω･｡)';
+        font-size: 20px;
+        color: var(--uwu-text);
+        text-shadow: 0 0 5px var(--uwu-primary);
+    }
+
+    body.uwu-mode .loading-animation {
+        background: rgba(31, 26, 36, 0.9);
+        border: 1px solid var(--uwu-primary);
+        box-shadow: 0 0 10px rgba(184, 163, 204, 0.3);
+    }
+
+    .uwu-transition-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--uwu-background);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        z-index: 9999;
+    }
+
+    .uwu-transition-overlay.active {
+        opacity: 1;
+    }
+
+    body.uwu-mode .hub-logo {
+        animation: float 3s ease-in-out infinite;
+        text-shadow: 0 0 8px var(--uwu-primary);
+        font-family: 'Arial', sans-serif;
+        letter-spacing: 1px;
+    }
+
+    body.uwu-mode .hub {
+        background: linear-gradient(135deg, var(--uwu-background), rgba(45, 27, 61, 0.95));
+        border-image: linear-gradient(45deg, var(--uwu-primary), var(--uwu-accent)) 1;
+        animation: uwu-transition 10s infinite alternate;
+    }
+
+    body.uwu-mode .post-container {
+        border: 1px solid var(--uwu-primary);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(184, 163, 204, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    body.uwu-mode .post-container:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 15px rgba(184, 163, 204, 0.4);
+    }
+
+    body.uwu-mode .post-info-container {
+        background: linear-gradient(135deg, rgba(19, 17, 26, 0.95), rgba(19, 17, 26, 0.85));
+        border: none;
+        backdrop-filter: blur(8px);
+    }
+
+    body.uwu-mode .username {
+        color: var(--uwu-primary);
+        font-family: 'Comic Sans MS', cursive;
+    }
+
+    body.uwu-mode .description {
+        color: var(--uwu-text);
+        text-shadow: 0 0 5px var(--uwu-accent);
+    }
+
+    body.uwu-mode .subreddit-info {
+        background: linear-gradient(45deg, var(--uwu-primary), var(--uwu-accent));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: bold;
+        text-shadow: none;
+    }
+
+    body.uwu-mode .action-btn {
+        background: var(--uwu-primary);
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        opacity: 0.8;
+    }
+
+    body.uwu-mode .action-btn:hover {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    body.uwu-mode .video-player {
+        border-radius: 15px;
+        box-shadow: 0 0 20px var(--uwu-primary);
+    }
+
+    body.uwu-mode .search-bar {
+        border: 2px solid var(--uwu-primary);
+        box-shadow: 0 0 10px var(--uwu-accent);
+        transition: all 0.3s ease;
+    }
+
+    body.uwu-mode .search-bar:focus {
+        border-color: var(--uwu-accent);
+        box-shadow: 0 0 15px var(--uwu-primary);
+    }
+
+    body.uwu-mode .filter-btn,
+    body.uwu-mode .refresh-btn {
+        background: linear-gradient(135deg, var(--uwu-primary), var(--uwu-accent));
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: var(--uwu-primary);
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    body.uwu-mode .hub {
+        border-color: var(--uwu-border);
+        box-shadow: 0 0 10px var(--uwu-primary);
+    }
+
+    .uwu-confirm {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, var(--uwu-background), rgba(45, 27, 61, 0.95));
+        border: 3px solid var(--uwu-primary);
+        border-radius: 25px;
+        padding: 40px;
+        text-align: center;
+        z-index: 2000;
+        box-shadow: 0 0 30px var(--uwu-primary), 0 0 60px var(--uwu-accent);
+        animation: float 3s ease-in-out infinite;
+        backdrop-filter: blur(10px);
+    }
+
+    .uwu-confirm::before {
+        content: '✧';
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        font-size: 24px;
+        color: var(--uwu-primary);
+        animation: sparkle 1.5s infinite;
+    }
+
+    .uwu-confirm::after {
+        content: '✧';
+        position: absolute;
+        bottom: -15px;
+        right: -15px;
+        font-size: 24px;
+        color: var(--uwu-accent);
+        animation: sparkle 1.5s infinite 0.75s;
+    }
+
+    .uwu-text {
+        font-size: 28px;
+        margin-bottom: 30px;
+        animation: sparkle 2s infinite;
+        color: var(--uwu-text);
+        text-shadow: 0 0 10px var(--uwu-primary), 0 0 20px var(--uwu-accent);
+        font-family: 'Comic Sans MS', cursive;
+        letter-spacing: 2px;
+    }
+
+    .uwu-text::before {
+        content: '♡';
+        margin-right: 10px;
+        color: var(--uwu-primary);
+    }
+
+    .uwu-text::after {
+        content: '♡';
+        margin-left: 10px;
+        color: var(--uwu-accent);
+    }
+
+    .uwu-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .uwu-btn {
+        padding: 10px 30px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: var(--uwu-primary);
+        color: var(--uwu-background);
+    }
+
+    .uwu-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px var(--uwu-primary);
     }
 
     body, html {
@@ -44,32 +309,7 @@
         font-weight: bold;
         color: var(--primary-color);
         position: relative;
-    }
-
-    .nsfw-bubbles {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-
-    .bubble {
-        position: absolute;
-        background-color: var(--primary-color);
-        border-radius: 50%;
-        opacity: 0;
-        animation: bubble 2s ease-out;
-    }
-
-    @keyframes bubble {
-        0% {
-            transform: scale(0) translateY(0);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(1) translateY(-50px);
-            opacity: 0;
-        }
+        cursor: pointer;
     }
 
     .search-container {
@@ -243,6 +483,22 @@
         margin-bottom: 20px;
     }
 
+    .settings-option {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .settings-option label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .settings-option input[type="checkbox"] {
+        display: none;
+    }
+
     .custom-checkbox {
         width: 20px;
         height: 20px;
@@ -251,7 +507,7 @@
         border-radius: 4px;
         display: inline-block;
         position: relative;
-        cursor: pointer;
+        margin-right: 10px;
     }
 
     .custom-checkbox::after {
@@ -267,11 +523,7 @@
         transform: rotate(45deg);
     }
 
-    .settings-option input[type="checkbox"] {
-        display: none;
-    }
-
-    .settings-option input[type="checkbox"]:checked + .custom-checkbox::after {
+    .settings-option input[type="checkbox"]:checked + label .custom-checkbox::after {
         display: block;
     }
 
@@ -303,59 +555,89 @@
     .post-content {
         width: 100%;
         height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .post-image {
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
+        loading: lazy;
     }
 
     .actions {
         position: absolute;
-        right: 40px;
+        right: 20px;
         bottom: 100px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    }
-
-    .actions.hidden {
-        opacity: 0;
+        z-index: 10;
     }
 
     .action-btn {
         background: none;
         border: none;
-        color: var(--text-color);
-        font-size: 24px;
-        margin: 10px 0;
+        padding: 10px;
         cursor: pointer;
-        transition: color 0.3s ease;
+        transition: transform 0.2s;
     }
 
     .action-btn:hover {
-        color: var(--primary-color);
+        transform: scale(1.1);
+    }
+
+    .action-btn img {
+        width: 30px;
+        height: 30px;
     }
 
     .action-count {
+        color: var(--text-color);
         font-size: 14px;
         margin-top: 5px;
     }
 
-    .user-info {
+    .post-info-container {
         position: absolute;
         left: 20px;
         bottom: 20px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        border-radius: 8px;
+        max-width: 300px;
+        width: 100%;
+    }
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 
     .username {
         font-weight: bold;
         font-size: 18px;
-        margin-bottom: 5px;
     }
 
     .description {
         font-size: 14px;
-        max-width: 250px;
         cursor: pointer;
+        line-height: 1.4;
+        word-wrap: break-word;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .description.truncated {
+        max-height: 60px; /* Approximately 3 lines of text */
     }
 
     .description.truncated::after {
@@ -363,12 +645,11 @@
     }
 
     .subreddit-info {
-        position: absolute;
-        left: 20px;
-        bottom: 80px;
         font-size: 16px;
         cursor: pointer;
         color: var(--primary-color);
+        transition: color 0.3s ease;
+        padding: 4px 0;
     }
 
     .subreddit-info:hover {
@@ -493,22 +774,121 @@
         background-color: #c73a50;
     }
 
+    .video-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .video-player {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    /* Video player error styles */
+    .video-error {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        background-color: var(--secondary-color);
+        color: var(--primary-color);
+        font-size: 16px;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .video-error small {
+        margin-top: 8px;
+        color: var(--text-color);
+        opacity: 0.7;
+        font-size: 14px;
+    }
+
+    .video-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .video-loading::after {
+        content: '';
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--background-color);
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    /* Plyr custom styles */
+    .plyr {
+        width: 100%;
+        height: 100%;
+    }
+    
+    .plyr video {
+        object-fit: contain;
+    }
+
+    /* Video.js custom styles */
+    .video-js {
+        width: 100%;
+        height: 100%;
+    }
+
+    .video-js .vjs-tech {
+        object-fit: contain;
+    }
+
+    .video-js .vjs-control-bar {
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .video-js .vjs-progress-control .vjs-progress-holder {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .video-js .vjs-play-progress {
+        background-color: var(--primary-color);
+    }
+
+    .video-js .vjs-slider-bar {
+        background-color: var(--primary-color);
+    }
+
     .video-player-hub {
         position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: rgba(10, 10, 10, 0.9);
+        background-color: rgba(0, 0, 0, 0.5);
         padding: 10px;
-        display: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 11;
     }
 
     .video-progress-bar {
-        width: 100%;
+        flex-grow: 1;
         height: 5px;
-        background-color: var(--secondary-color);
-        margin-bottom: 10px;
+        background-color: rgba(255, 255, 255, 0.3);
+        margin: 0 10px;
         cursor: pointer;
+        position: relative;
     }
 
     .video-progress {
@@ -517,19 +897,25 @@
         width: 0;
     }
 
-    .video-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .video-scrubber {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 15px;
+        height: 15px;
+        background-color: white;
+        border-radius: 50%;
+        cursor: pointer;
     }
 
     .video-control-btn {
         background: none;
         border: none;
         color: var(--text-color);
-        font-size: 18px;
+        font-size: 24px;
         cursor: pointer;
         padding: 5px;
+        transition: color 0.3s ease;
     }
 
     .video-control-btn:hover {
@@ -538,198 +924,157 @@
 
     .video-time {
         font-size: 14px;
+        color: var(--text-color);
+        margin-left: 10px;
     }
 
-    .welcome-hub {
+    .play-pause-btn, .mute-btn {
+        width: 30px;
+        height: 30px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .play-pause-btn {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/727/727245.png');
+    }
+
+    .play-pause-btn.paused {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/727/727240.png');
+    }
+
+    .mute-btn {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/727/727248.png');
+    }
+
+    .mute-btn.muted {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/727/727249.png');
+    }
+
+    .share-message {
         position: fixed;
-        top: 50%;
+        bottom: 20px;
         left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: var(--secondary-color);
-        padding: 40px;
-        border-radius: 10px;
-        z-index: 1002;
-        text-align: center;
-        max-width: 80%;
-        width: 400px;
-    }
-
-    .welcome-hub h2 {
-        color: var(--primary-color);
-        margin-bottom: 20px;
-    }
-
-    .welcome-hub button {
+        transform: translateX(-50%);
         background-color: var(--primary-color);
         color: var(--text-color);
-        border: none;
         padding: 10px 20px;
-        margin: 10px;
         border-radius: 5px;
-        cursor: pointer;
         font-size: 16px;
-    }
-
-    .welcome-hub button:hover {
-        background-color: #c73a50;
-    }
-
-    .welcome-hub button:disabled {
-        background-color: #666;
-        cursor: not-allowed;
-    }
-
-    .subreddit-selection {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .subreddit-btn {
-        background-color: var(--secondary-color);
-        color: var(--text-color);
-        border: 1px solid var(--primary-color);
-        padding: 5px 10px;
-        border-radius: 15px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .subreddit-btn.selected {
-        background-color: var(--primary-color);
-    }
-
-    .glow {
-        animation: glow 1s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-        from {
-            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--primary-color), 0 0 20px var(--primary-color), 0 0 35px var(--primary-color), 0 0 40px var(--primary-color), 0 0 50px var(--primary-color);
-        }
-        to {
-            text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--primary-color), 0 0 40px var(--primary-color), 0 0 50px var(--primary-color), 0 0 60px var(--primary-color), 0 0 70px var(--primary-color);
-        }
-    }
-
-    .pulse {
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7);
-        }
-        70% {
-            transform: scale(1);
-            box-shadow: 0 0 0 10px rgba(233, 69, 96, 0);
-        }
-        100% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(233, 69, 96, 0);
-        }
-    }
-
-    .uwu-btn {
-        background-color: #7200ff;
-        border: none;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        transition: background-color 0.3s ease;
-        margin-top: 20px;
-    }
-
-    .uwu-btn img {
-        width: 24px;
-        height: 24px;
-    }
-
-    .uwu-bubble {
-        position: absolute;
-        background-color: #7200ff;
-        border-radius: 50%;
         opacity: 0;
-        animation: uwuBubble 2s ease-out;
+        transition: opacity 0.3s ease;
     }
 
-    @keyframes uwuBubble {
-        0% {
-            transform: scale(0) translateY(0);
-            opacity: 1;
-        }
-        100% {
-            transform: scale(1) translateY(-50px);
-            opacity: 0;
-        }
+    .share-message.show {
+        opacity: 1;
     }
 
-    .uwu-prompt {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #1a1a1a;
-        color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
-        z-index: 1003;
-    }
-
-    .uwu-prompt h3 {
-        color: #7200ff;
-        margin-bottom: 20px;
-    }
-
-    .uwu-prompt button {
-        background-color: #7200ff;
-        color: #fff;
+    .three-dot-btn {
+        background: none;
         border: none;
-        padding: 10px 20px;
-        margin: 0 10px;
-        border-radius: 5px;
+        color: var(--text-color);
+        font-size: 24px;
         cursor: pointer;
+        padding: 5px;
+        transition: color 0.3s ease;
     }
 
-    .uwu-mode {
-        --primary-color: #7200ff;
+    .three-dot-btn:hover {
+        color: var(--primary-color);
     }
 
-    .uwu-mode .hub-logo,
-    .uwu-mode .filter-btn,
-    .uwu-mode .refresh-btn,
-    .uwu-mode .settings-btn svg,
-    .uwu-mode .category-btn:hover,
-    .uwu-mode .category-btn.active,
-    .uwu-mode .settings-title,
-    .uwu-mode .custom-checkbox,
-    .uwu-mode .action-btn:hover,
-    .uwu-mode .subreddit-info,
-    .uwu-mode .loading-animation,
-    .uwu-mode .search-icon,
-    .uwu-mode .video-progress,
-    .uwu-mode .video-control-btn:hover,
-    .uwu-mode .welcome-hub h2,
-    .uwu-mode .welcome-hub button,
-    .uwu-mode .subreddit-btn.selected {
-        color: #7200ff;
-        border-color: #7200ff;
+    .three-dot-btn::after {
+        content: '\2807';
+        font-size: 24px;
     }
 
-    .uwu-mode .filter-btn:hover,
-    .uwu-mode .refresh-btn:hover,
-    .uwu-mode .search-icon:hover,
-    .uwu-mode .welcome-hub button:hover {
-        background-color: #5900cc;
+    .heart-btn, .comment-btn, .share-btn {
+        width: 30px;
+        height: 30px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        transition: filter 0.3s ease;
+    }
+
+    .heart-btn {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/1077/1077035.png');
+        filter: brightness(0) invert(1);
+    }
+
+    .heart-btn.active {
+        filter: brightness(0) saturate(100%) invert(36%) sepia(74%) saturate(1642%) hue-rotate(318deg) brightness(95%) contrast(98%);
+    }
+
+    .comment-btn {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/1380/1380338.png');
+        filter: brightness(0) invert(1);
+    }
+
+    .comment-btn:hover {
+        filter: brightness(0) saturate(100%) invert(36%) sepia(74%) saturate(1642%) hue-rotate(318deg) brightness(95%) contrast(98%);
+    }
+
+    .share-btn {
+        background-image: url('https://cdn-icons-png.flaticon.com/512/1828/1828956.png');
+        filter: brightness(0) invert(1);
+    }
+
+    .share-btn:hover {
+        filter: brightness(0) saturate(100%) invert(36%) sepia(74%) saturate(1642%) hue-rotate(318deg) brightness(95%) contrast(98%);
+    }
+
+    /* Light Mode Styles */
+    body.light-mode {
+        background-color: #ffffff;
+        color: #000000;
+    }
+
+    body.light-mode .hub {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid #dddddd;
+    }
+
+    body.light-mode .search-bar {
+        background-color: #f0f0f0;
+        color: #000000;
+    }
+
+    body.light-mode .settings-modal {
+        background-color: #f9f9f9;
+        border: 1px solid #dddddd;
+    }
+
+    body.light-mode .custom-checkbox {
+        background-color: #f0f0f0;
+        border-color: #e94560;
+    }
+
+    body.light-mode .custom-checkbox::after {
+        border-color: #e94560;
+    }
+
+    body.light-mode .category-btn {
+        background-color: #f0f0f0;
+        border-color: #e94560;
+    }
+
+    body.light-mode .category-btn:hover,
+    body.light-mode .category-btn.active {
+        background-color: #e94560;
+    }
+
+    body.light-mode .video-progress-bar {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    body.light-mode .video-progress {
+        background-color: #e94560;
+    }
+
+    body.light-mode .settings-btn svg {
+        fill: #e94560;
     }
 </style>
 </head>
@@ -737,15 +1082,14 @@
     <div class="hub">
         <div class="hub-logo">
             Mokie
-            <div class="nsfw-bubbles"></div>
         </div>
         <div class="search-container">
-            <input type="text" class="search-bar" placeholder="Search subreddits...">
+            <input type="text" class="search-bar" id="searchBar" name="searchBar" placeholder="Search subreddits..." autocomplete="off">
             <button class="filter-btn">
-                <img src="https://cdn-icons-png.flaticon.com/256/6372/6372641.png" alt="Search Icon">
+                <img src="https://cdn-icons-png.flaticon.com/256/6372/6372641.png" alt="Filter Icon - Opens Search Hub" width="22" height="22">
             </button>
             <button class="refresh-btn">
-                <img src="https://www.flaticon.com/svg/vstatic/svg/3916/3916984.svg?token=exp=1721927645~hmac=4db5c2394409f65bfbf08fc1c6f3c580" alt="Refresh Icon">
+                <img src="https://cdn-icons-png.flaticon.com/128/2089/2089500.png" alt="Refresh Icon" width="22" height="22">
             </button>
         </div>
         <button class="settings-btn">
@@ -756,15 +1100,15 @@
     </div>
 
     <button class="search-icon">
-        <img src="https://cdn-icons-png.flaticon.com/256/6372/6372641.png" alt="Search Icon">
+        <img src="https://cdn-icons-png.flaticon.com/256/6372/6372641.png" alt="Search Icon" width="22" height="22">
     </button>
 
-    <div class="filter-section">
+    <div class="filter-section hidden">
         <div class="filter-grid">
             <div class="filter-option">
                 <label for="sortBy">Sort by:</label>
                 <div class="custom-select">
-                    <select id="sortBy">
+                    <select id="sortBy" name="sortBy">
                         <option value="hot">Hot</option>
                         <option value="new">New</option>
                         <option value="top">Top</option>
@@ -775,7 +1119,7 @@
             <div class="filter-option">
                 <label for="timeRange">Time range:</label>
                 <div class="custom-select">
-                    <select id="timeRange">
+                    <select id="timeRange" name="timeRange">
                         <option value="hour">Past hour</option>
                         <option value="day">Past 24 hours</option>
                         <option value="week">Past week</option>
@@ -788,12 +1132,12 @@
             <div class="filter-option">
                 <label for="contentType">Content type:</label>
                 <div class="custom-select">
-                    <select id="contentType">
+                    <select id="contentType" name="contentType">
                         <option value="all">All</option>
                         <option value="image">Images only</option>
                         <option value="video">Videos only</option>
                         <option value="gallery">Galleries only</option>
-                        <option value="gif_video">Gifs & Videos</option>
+                        <option value="gif_video">Gifs &amp; Videos</option>
                     </select>
                 </div>
             </div>
@@ -811,947 +1155,1147 @@
     <div class="settings-modal">
         <div class="settings-title">Settings</div>
         <div class="settings-option">
-            <input type="checkbox" id="darkMode" checked>
-            <label for="darkMode" class="custom-checkbox"></label>
-            <label for="darkMode">Dark Mode</label>
+            <input type="checkbox" id="darkMode" name="darkMode" checked>
+            <label for="darkMode">
+                <span class="custom-checkbox"></span>
+                Dark Mode
+            </label>
         </div>
         <div class="settings-option">
-            <input type="checkbox" id="autoplayVideos" checked>
-            <label for="autoplayVideos" class="custom-checkbox"></label>
-            <label for="autoplayVideos">Autoplay Videos</label>
+            <input type="checkbox" id="autoplayVideos" name="autoplayVideos" checked>
+            <label for="autoplayVideos">
+                <span class="custom-checkbox"></span>
+                Autoplay Videos
+            </label>
         </div>
         <div class="settings-option">
-            <input type="checkbox" id="showNSFW">
-            <label for="showNSFW" class="custom-checkbox"></label>
-            <label for="showNSFW">Show NSFW Content</label>
+            <input type="checkbox" id="nsfwMode" name="nsfwMode">
+            <label for="nsfwMode">
+                <span class="custom-checkbox"></span>
+                NSFW Mode
+            </label>
+            <input type="checkbox" id="uwuMode" name="uwuMode">
+            <label for="uwuMode">
+                <span class="custom-checkbox"></span>
+                UwU Mode
+            </label>
+        </div>
+        <div class="settings-option">
+            <label for="videoPlayer">Video Player:</label>
+            <div class="custom-select">
+                    <select id="videoPlayer" name="videoPlayer">
+                    <option value="default">Default Player</option>
+                    <option value="plyr">Plyr</option>
+                    <option value="videojs">Video.js</option>
+                </select>
+            </div>
         </div>
         <button class="immersive-btn">Immersive Viewer</button>
-        <button class="uwu-btn">
-            <img src="https://cdn-icons-png.flaticon.com/128/5100/5100789.png" alt="UwU Icon">
-        </button>
     </div>
 
     <div class="container">
         <!-- Content will be dynamically loaded here -->
     </div>
 
-    <div class="video-player-hub">
-        <div class="video-progress-bar">
-            <div class="video-progress"></div>
-        </div>
-        <div class="video-controls">
-            <button class="video-control-btn play-pause-btn">
-                <i class="fas fa-play"></i>
-            </button>
-            <button class="video-control-btn mute-btn">
-                <i class="fas fa-volume-up"></i>
-            </button>
-            <span class="video-time">0:00 / 0:00</span>
-        </div>
-    </div>
+    <div class="share-message">Post copied to clipboard</div>
 
-    <div class="welcome-hub" style="display: none;">
-        <h2>Are you a first time user?</h2>
-        <button id="welcomeYesBtn">Yes</button>
-        <button id="welcomeNoBtn">No</button>
-    </div>
-
-    <div class="uwu-prompt">
-        <h3>Feeling UwU?</h3>
-        <button id="uwuYesBtn">Yes</button>
-        <button id="uwuNoBtn">No</button>
+    <div class="uwu-confirm">
+        <div class="uwu-text">Do you want UwU?</div>
+        <div class="uwu-buttons">
+            <button class="uwu-btn uwu-yes">Yes</button>
+            <button class="uwu-btn uwu-no">No</button>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.6.8/plyr.min.js"></script>
+    <script src="https://vjs.zencdn.net/7.10.2/video.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.6.8/plyr.min.css">
+    <link href="https://vjs.zencdn.net/7.10.2/video-js.min.css" rel="stylesheet">
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const container = document.querySelector('.container');
-            const searchBar = document.querySelector('.search-bar');
-            const filterBtn = document.querySelector('.filter-btn');
-            const refreshBtn = document.querySelector('.refresh-btn');
-            const filterSection = document.querySelector('.filter-section');
-            const settingsBtn = document.querySelector('.settings-btn');
-            const settingsModal = document.querySelector('.settings-modal');
-            const overlay = document.querySelector('.overlay');
-            const darkModeToggle = document.getElementById('darkMode');
-            const autoplayToggle = document.getElementById('autoplayVideos');
-            const nsfwToggle = document.getElementById('showNSFW');
-            const sortBySelect = document.getElementById('sortBy');
-            const timeRangeSelect = document.getElementById('timeRange');
-            const contentTypeSelect = document.getElementById('contentType');
-            const categoryButtons = document.querySelector('.category-buttons');
-            const hubLogo = document.querySelector('.hub-logo');
-            const nsfwBubbles = document.querySelector('.nsfw-bubbles');
-            const hub = document.querySelector('.hub');
-            const searchIcon = document.querySelector('.search-icon');
-            const immersiveBtn = document.querySelector('.immersive-btn');
-            const videoPlayerHub = document.querySelector('.video-player-hub');
-            const videoProgressBar = document.querySelector('.video-progress-bar');
-            const videoProgress = document.querySelector('.video-progress');
-            const playPauseBtn = document.querySelector('.play-pause-btn');
-            const muteBtn = document.querySelector('.mute-btn');
-            const videoTime = document.querySelector('.video-time');
-            const welcomeHub = document.querySelector('.welcome-hub');
-            const welcomeYesBtn = document.getElementById('welcomeYesBtn');
-            const welcomeNoBtn = document.getElementById('welcomeNoBtn');
-            const uwuBtn = document.querySelector('.uwu-btn');
-            const uwuPrompt = document.querySelector('.uwu-prompt');
-            const uwuYesBtn = document.getElementById('uwuYesBtn');
-            const uwuNoBtn = document.getElementById('uwuNoBtn');
-
-            let isScrolling = false;
-            let startY;
-            let startTop;
-            let selectedCategory = 'all';
-            let currentSubreddit = '';
-            let userPreferences = {
-                likedPosts: [],
-                searchHistory: [],
-                viewedSubreddits: [],
-                interactionHistory: [],
-                selectedSubreddits: [],
-                selectedMatureSubreddits: [],
-                isFirstTimeUser: true,
-                uwuMode: false
-            };
-
-            let hubTimer;
-            let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            // Initialize global variables
+            let currentVideoPlayer = null;
             let currentVideoElement = null;
 
+            // Initialize DOM elements and state
+            const elements = {
+                container: document.querySelector('.container'),
+                searchBar: document.querySelector('.search-bar'),
+                filterBtn: document.querySelector('.filter-btn'),
+                refreshBtn: document.querySelector('.refresh-btn'),
+                filterSection: document.querySelector('.filter-section'),
+                settingsBtn: document.querySelector('.settings-btn'),
+                settingsModal: document.querySelector('.settings-modal'),
+                overlay: document.querySelector('.overlay'),
+                darkModeToggle: document.getElementById('darkMode'),
+                autoplayToggle: document.getElementById('autoplayVideos'),
+                nsfwModeToggle: document.getElementById('nsfwMode'),
+                videoPlayerSelect: document.getElementById('videoPlayer'),
+                sortBySelect: document.getElementById('sortBy'),
+                timeRangeSelect: document.getElementById('timeRange'),
+                contentTypeSelect: document.getElementById('contentType'),
+                categoryButtons: document.querySelector('.category-buttons'),
+                hubLogo: document.querySelector('.hub-logo'),
+                hub: document.querySelector('.hub'),
+                searchIcon: document.querySelector('.search-icon'),
+                immersiveBtn: document.querySelector('.immersive-btn'),
+                shareMessage: document.querySelector('.share-message')
+            };
+
+            const state = {
+                isRateLimited: false,
+                rateLimitResetTime: 0,
+                maxRetries: 3,
+                isScrolling: false,
+                startY: null,
+                startTop: null,
+                selectedCategory: 'all',
+                currentSubreddit: '',
+                userPreferences: {
+                    likedPosts: [],
+                    searchHistory: [],
+                    viewedSubreddits: [],
+                    interactionHistory: [],
+                    selectedSubreddits: []
+                },
+                hubTimer: null,
+                isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
+                currentVideoElement: null,
+                currentVideoPlayer: null,
+                activePostContainer: null
+            };
+
             const safeSubreddits = ['funny', 'pics', 'aww', 'gaming', 'food', 'space', 'science', 'music', 'movies', 'art', 'EarthPorn', 'wholesome', 'memes', 'cats', 'dogs'];
-            const nsfwSubreddits = ['gonewild', 'nsfw', 'RealGirls', 'NSFW_GIF', 'holdthemoan', 'LegalTeens', 'cumsluts', 'AsiansGoneWild', 'GoneWildCurvy', 'amateur', 'PetiteGoneWild', 'Boobies', 'milf', 'ass', 'pussy'];
-            const hentaiSubreddits = ['hentai', 'ecchi', 'rule34', 'MonsterGirl', 'yuri', 'ahegao', 'Tentai', 'HentaiBondage', 'hentaibondage', 'hentaimemes', 'WaifusOnCouch'];
+            const nsfwSubreddits = ['nsfw', 'gonewild', 'nsfw_gifs', 'rule34', 'hentai', 'porninfifteenseconds', 'holdthemoan', 'nsfwhardcore', 'asiansgonewild', 'bustypetite'];
+            const uwuSubreddits = ['hentai', 'rule34', 'ecchi', 'wholesomehentai', 'sukebei', 'nekomimi', 'kemonomimi', 'monstergirls', 'yuri', 'yaoi', 'animelewd', 'pantsu', 'thighdeology', 'zettairyouiki'];
+            const categories = ['Technology', 'Science', 'Art', 'Music', 'Gaming', 'Movies', 'Photography', 'Food', 'Travel', 'Sports'];
+            const nsfwCategories = ['NSFW', 'Gonewild', 'Hentai', 'Rule34', 'Asian', 'Petite', 'Hardcore', 'Gifs', 'Amateur', 'Professional'];
+            const uwuCategories = ['Hentai', 'Rule34', 'Ecchi', 'Lewd', 'Catgirl', 'Waifu', 'Anime', 'Manga', 'Cosplay', 'Moe', 'Sukebei', 'Nekomimi', 'Monster Girls', 'Kemonomimi'];
 
-            function setCookie(name, value, days) {
-                let expires = "";
-                if (days) {
-                    let date = new Date();
-                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-                    expires = "; expires=" + date.toUTCString();
+            // Utility functions
+            function setLocalStorage(name, value) {
+                try {
+                    localStorage.setItem(name, JSON.stringify(value));
+                } catch (e) {
+                    console.error('Error setting localStorage:', e);
                 }
-                document.cookie = name + "=" + (value || "") + expires + "; path=/";
             }
 
-            function getCookie(name) {
-                let nameEQ = name + "=";
-                let ca = document.cookie.split(';');
-                for (let i = 0; i < ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            function getLocalStorage(name) {
+                try {
+                    const value = localStorage.getItem(name);
+                    return value ? JSON.parse(value) : null;
+                } catch (e) {
+                    console.error('Error getting localStorage:', e);
+                    return null;
                 }
-                return null;
             }
 
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            // Hub visibility functions
             function hideHub() {
-                hub.classList.add('hidden');
-                filterSection.classList.add('hidden');
-                searchIcon.style.display = 'flex';
+                elements.hub.classList.add('hidden');
+                elements.filterSection.classList.add('hidden');
+                elements.searchIcon.style.display = 'flex';
             }
 
             function showHub() {
-                hub.classList.remove('hidden');
-                filterSection.classList.remove('hidden');
-                searchIcon.style.display = 'none';
+                elements.hub.classList.remove('hidden');
+                elements.filterSection.classList.remove('hidden');
+                elements.searchIcon.style.display = 'none';
             }
 
-            if (isMobile) {
+            // Initialize event listeners
+            elements.container.addEventListener('scroll', debounce(async () => {
+                const scrollPosition = elements.container.scrollTop + elements.container.clientHeight;
+                const scrollHeight = elements.container.scrollHeight;
+                
+                // Load more posts when user scrolls near the bottom
+                if (scrollHeight - scrollPosition < 1000) { // 1000px threshold
+                    const postsToDisplay = allFetchedPosts.slice(currentPostIndex, currentPostIndex + 4);
+                    if (postsToDisplay.length > 0) {
+                        displayPosts(postsToDisplay);
+                        currentPostIndex += 4;
+                    }
+                }
+            }, 200));
+
+            elements.filterBtn.addEventListener('click', () => {
+                elements.filterSection.classList.toggle('hidden');
+                if (!elements.filterSection.classList.contains('hidden')) {
+                    elements.filterSection.style.display = 'block';
+                } else {
+                    elements.filterSection.style.display = 'none';
+                }
+            });
+
+            // Mobile and desktop interactions
+            if (state.isMobile) {
                 document.addEventListener('touchstart', () => {
-                    clearTimeout(hubTimer);
+                    clearTimeout(state.hubTimer);
                     showHub();
-                    hubTimer = setTimeout(hideHub, 2000);
+                    state.hubTimer = setTimeout(hideHub, 2000);
                 });
+
+                elements.container.addEventListener('touchstart', (e) => {
+                    state.startY = e.touches[0].pageY;
+                    state.startTop = elements.container.scrollTop;
+                    state.isScrolling = true;
+                }, { passive: true });
+
+                elements.container.addEventListener('touchmove', (e) => {
+                    if (!state.isScrolling) return;
+                    const y = e.touches[0].pageY;
+                    const walk = (y - state.startY) * 2;
+                    requestAnimationFrame(() => {
+                        elements.container.scrollTop = state.startTop - walk;
+                    });
+                }, { passive: true });
+
+                elements.container.addEventListener('touchend', () => {
+                    state.isScrolling = false;
+                }, { passive: true });
             } else {
-                document.addEventListener('mousemove', (e) => {
-                    clearTimeout(hubTimer);
+                document.addEventListener('mousemove', debounce((e) => {
+                    clearTimeout(state.hubTimer);
                     if (e.clientY < 100) {
                         showHub();
                     } else {
-                        hubTimer = setTimeout(hideHub, 2000);
+                        state.hubTimer = setTimeout(hideHub, 2000);
                     }
-                });
+                }, 100));
             }
 
-            searchIcon.addEventListener('click', showHub);
-
-            container.addEventListener('touchstart', (e) => {
-                startY = e.touches[0].pageY;
-                startTop = container.scrollTop;
-                isScrolling = true;
-            });
-
-            container.addEventListener('touchmove', (e) => {
-                if (!isScrolling) return;
-                e.preventDefault();
-                const y = e.touches[0].pageY;
-                const walk = (y - startY) * 2;
-                container.scrollTop = startTop - walk;
-            });
-
-            container.addEventListener('touchend', () => {
-                isScrolling = false;
-            });
-
-            filterBtn.addEventListener('click', () => {
-                filterSection.style.display = filterSection.style.display === 'none' ? 'block' : 'none';
-            });
-
-            refreshBtn.addEventListener('click', () => {
-                generateFYPFeed(true);
-            });
-
-            settingsBtn.addEventListener('click', () => {
-                settingsModal.style.display = 'block';
-                overlay.style.display = 'block';
-            });
-
-            overlay.addEventListener('click', () => {
-                settingsModal.style.display = 'none';
-                overlay.style.display = 'none';
-                uwuPrompt.style.display = 'none';
-            });
-
-            darkModeToggle.addEventListener('change', toggleDarkMode);
-            autoplayToggle.addEventListener('change', toggleAutoplay);
-            nsfwToggle.addEventListener('change', toggleNSFW);
-
-            searchBar.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const searchTerm = this.value;
-                    userPreferences.searchHistory.push(searchTerm);
-                    searchReddit(searchTerm);
+            // Search icon interaction
+            elements.searchIcon.addEventListener('click', () => {
+                elements.filterSection.classList.toggle('hidden');
+                if (!elements.filterSection.classList.contains('hidden')) {
+                    elements.searchBar.focus();
                 }
             });
 
-            sortBySelect.addEventListener('change', () => applyFilters());
-            timeRangeSelect.addEventListener('change', () => applyFilters());
-            contentTypeSelect.addEventListener('change', () => applyFilters());
+            // Event listeners
+            elements.refreshBtn.addEventListener('click', () => generateFYPFeed(true));
 
-            function updateCategoryButtons() {
-                categoryButtons.innerHTML = '';
-                const categories = userPreferences.uwuMode ? hentaiSubreddits : (nsfwToggle.checked ? nsfwSubreddits : safeSubreddits);
-                categories.forEach(category => {
-                    const button = document.createElement('button');
-                    button.className = 'category-btn';
-                    button.textContent = category;
-                    button.dataset.category = category;
-                    button.addEventListener('click', () => {
-                        categoryButtons.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-                        button.classList.add('active');
-                        selectedCategory = category;
-                        applyFilters();
-                    });
-                    categoryButtons.appendChild(button);
-                });
-            }
-
-            function applyFilters() {
-                const query = searchBar.value;
-                const sortBy = sortBySelect.value;
-                const timeRange = timeRangeSelect.value;
-                const contentType = contentTypeSelect.value;
-                searchReddit(query, sortBy, timeRange, contentType, selectedCategory);
-            }
-
-function searchReddit(query, sortBy = 'hot', timeRange = 'all', contentType = 'all', category = 'all') {
-    const nsfwOnly = nsfwToggle.checked || userPreferences.uwuMode;
-    let url;
-    
-    if (userPreferences.uwuMode) {
-        // Only search hentai subreddits in UwU mode
-        const hentaiQuery = hentaiSubreddits.join('+');
-        url = `https://www.reddit.com/r/${hentaiQuery}/search.json?q=${query}&restrict_sr=on&include_over_18=on&sort=${sortBy}&t=${timeRange}&limit=35`;
-    } else if (query.startsWith('r/')) {
-        // Search within a specific subreddit
-        const subreddit = query.slice(2);
-        url = `https://www.reddit.com/r/${subreddit}/${sortBy}.json?t=${timeRange}&limit=35`;
-    } else {
-        // Search across all subreddits
-        url = `https://www.reddit.com/search.json?q=${query}+nsfw:${nsfwOnly ? 'yes' : 'no'}&sort=${sortBy}&t=${timeRange}&include_over_18=${nsfwOnly}&limit=35`;
-    }
-    
-    showLoadingAnimation();
-    
-    axios.get(url)
-        .then(response => {
-            const posts = response.data.data.children;
-            container.innerHTML = ''; // Clear existing content
-            posts.forEach(post => {
-                const postData = post.data;
-                if (shouldDisplayPost(postData, contentType)) {
-                    const postElement = createPostElement(postData);
-                    if (postElement) {
-                        container.appendChild(postElement);
-                    }
-                }
+            elements.settingsBtn.addEventListener('click', () => {
+                elements.settingsModal.style.display = 'block';
+                elements.overlay.style.display = 'block';
             });
-            hideLoadingAnimation();
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-            hideLoadingAnimation();
-        });
-}
 
-            function shouldDisplayPost(postData, contentType) {
-                if (postData.is_self || postData.selftext) {
-                    return false; // Exclude discussion and story posts
-                }
-                switch (contentType) {
-                    case 'image':
-                        return postData.post_hint === 'image';
-                    case 'video':
-                        return postData.is_video;
-                    case 'gallery':
-                        return postData.is_gallery;
-                    case 'gif_video':
-                        return postData.is_video || (postData.post_hint === 'image' && postData.url.endsWith('.gif'));
-                    default:
-                        return postData.post_hint === 'image' || postData.is_video || postData.is_gallery || (postData.post_hint === 'rich:video');
-                }
+            elements.overlay.addEventListener('click', () => {
+                elements.settingsModal.style.display = 'none';
+                elements.overlay.style.display = 'none';
+            });
+
+            elements.darkModeToggle.addEventListener('change', toggleDarkMode);
+            elements.autoplayToggle.addEventListener('change', toggleAutoplay);
+            elements.nsfwModeToggle.addEventListener('change', toggleNsfwMode);
+            elements.videoPlayerSelect.addEventListener('change', changeVideoPlayer);
+            
+            // UwU mode functionality
+            const uwuConfirm = document.querySelector('.uwu-confirm');
+            const uwuYesBtn = document.querySelector('.uwu-btn.uwu-yes');
+            const uwuNoBtn = document.querySelector('.uwu-btn.uwu-no');
+            const uwuModeToggle = document.getElementById('uwuMode');
+            const overlay = document.querySelector('.overlay');
+
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.setProperty('--x-offset', `${(Math.random() - 0.5) * 40}px`);
+                document.querySelector('.hub-logo').appendChild(particle);
+                particle.addEventListener('animationend', () => particle.remove());
+                return particle;
             }
 
-            function createPostElement(postData) {
-                const postElement = document.createElement('div');
-                postElement.className = 'post-container';
-                
-               let contentHtml;
-    if (postData.is_video) {
-        contentHtml = `
-            <video class="post-content" ${autoplayToggle.checked ? 'autoplay' : ''} loop muted playsinline>
-                <source src="${postData.media.reddit_video.fallback_url}" type="video/mp4">
-            </video>
-        `;
-    } else if (postData.post_hint === 'image') {
-        contentHtml = `<img class="post-content" src="${postData.url}" alt="${postData.title}" loading="lazy">`;
-    } else if (postData.is_gallery) {
-        contentHtml = createGalleryHtml(postData);
-    } else if (postData.post_hint === 'rich:video') {
-        // Extract video URL from oembed data if available
-        const videoUrl = postData.media?.oembed?.thumbnail_url?.replace('jpg', 'mp4') || postData.url;
-        contentHtml = `<video class="post-content" ${autoplayToggle.checked ? 'autoplay' : ''} loop muted playsinline>
-            <source src="${videoUrl}" type="video/mp4">
-        </video>`;
-    } else if (postData.domain.includes('redgifs.com') || postData.domain.includes('streamable.com')) {
-        // For Redgifs and Streamable, use their oEmbed API to get the video URL
-        fetchVideoUrl(postData.url).then(videoUrl => {
-            if (videoUrl) {
-                postElement.querySelector('.post-content').outerHTML = `
-                    <video class="post-content" ${autoplayToggle.checked ? 'autoplay' : ''} loop muted playsinline>
-                        <source src="${videoUrl}" type="video/mp4">
-                    </video>
-                `;
-            }
-        });
-        contentHtml = '<div class="post-content">Loading content...</div>';
-    } else {
-        return null; // Skip this post if it doesn't match any of the above types
-    }
+            async function toggleUwuMode(enable) {
+                const overlay = document.createElement('div');
+                overlay.className = 'uwu-transition-overlay';
+                document.body.appendChild(overlay);
 
-                const truncatedTitle = postData.title.length > 41 ? postData.title.slice(0, 41) + '...' : postData.title;
+                // Trigger reflow
+                overlay.offsetHeight;
+                overlay.classList.add('active');
 
-                postElement.innerHTML = `
-                    ${contentHtml}
-                    <div class="actions hidden">
-                        <button class="action-btn like-btn" data-post-id="${postData.id}">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
-                            <div class="action-count">${postData.ups}</div>
-                        </button>
-                        <button class="action-btn">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                            <div class="action-count">${postData.num_comments}</div>
-                        </button>
-                        <button class="action-btn">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="18" cy="5" r="3"></circle>
-                                <circle cx="6" cy="12" r="3"></circle>
-                                <circle cx="18" cy="19" r="3"></circle>
-                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-                            </svg>
-                            <div class="action-count">Share</div>
-                        </button>
-                        <button class="action-btn video-options-btn">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="1"></circle>
-                                <circle cx="12" cy="5" r="1"></circle>
-                                <circle cx="12" cy="19" r="1"></circle>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="subreddit-info">${postData.subreddit_name_prefixed}</div>
-                    <div class="user-info">
-                        <div class="username">u/${postData.author}</div>
-                        <div class="description${postData.title.length > 41 ? ' truncated' : ''}">${truncatedTitle}</div>
-                    </div>
-                `;
+                // Quick fade in
+                await new Promise(resolve => setTimeout(resolve, 200));
 
-                const subredditInfo = postElement.querySelector('.subreddit-info');
-                subredditInfo.addEventListener('click', () => {
-                    currentSubreddit = postData.subreddit;
-                    userPreferences.viewedSubreddits.push(currentSubreddit);
-                    searchBar.value = currentSubreddit;
-                    applyFilters();
-                });
-
-                const likeBtn = postElement.querySelector('.like-btn');
-                likeBtn.addEventListener('click', () => {
-                    const postId = likeBtn.dataset.postId;
-                    if (!userPreferences.likedPosts.includes(postId)) {
-                        userPreferences.likedPosts.push(postId);
-                        likeBtn.classList.add('liked');
-                    } else {
-                        userPreferences.likedPosts = userPreferences.likedPosts.filter(id => id !== postId);
-                        likeBtn.classList.remove('liked');
-                    }
-                    updateUserPreferences();
-                });
-
-                const description = postElement.querySelector('.description');
-                description.addEventListener('click', () => {
-                    if (postData.title.length > 41) {
-                        description.textContent = description.textContent === truncatedTitle ? postData.title : truncatedTitle;
-                        description.classList.toggle('truncated');
-                    }
-                });
-
-                const actions = postElement.querySelector('.actions');
-                let timeout;
-                postElement.addEventListener('click', () => {
-                    actions.classList.remove('hidden');
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        actions.classList.add('hidden');
-                    }, 5000);
-                });
-
-                if (postData.is_gallery) {
-                    initializeGallery(postElement);
-                }
-
-                const videoOptionsBtn = postElement.querySelector('.video-options-btn');
-                if (videoOptionsBtn) {
-                    videoOptionsBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const videoElement = postElement.querySelector('video');
-                        if (videoElement) {
-                            showVideoPlayerHub(videoElement);
+                document.body.classList.toggle('uwu-mode', enable);
+                if (enable) {
+                    elements.nsfwModeToggle.checked = true;
+                    // Start particle animation
+                    const particleInterval = setInterval(() => {
+                        if (document.body.classList.contains('uwu-mode')) {
+                            const particle = createParticle();
+                            particle.style.animation = 'particle 2s ease-out forwards';
+                        } else {
+                            clearInterval(particleInterval);
                         }
-                    });
+                    }, 300);
                 }
 
-                return postElement;
+                // Reset feed and update categories
+                allFetchedPosts = [];
+                currentPostIndex = 0;
+                populateCategories();
+                
+                // Refresh feed with new content
+                await generateFYPFeed(true);
+
+                // Quick fade out
+                overlay.classList.remove('active');
+                await new Promise(resolve => setTimeout(resolve, 400));
+                overlay.remove();
             }
 
-            function createGalleryHtml(postData) {
-                const galleryItems = postData.gallery_data.items;
-                let galleryHtml = `
-                    <div class="gallery-container">
-                        <div class="gallery-counter">1/${galleryItems.length}</div>
-                `;
-
-                galleryItems.forEach((item, index) => {
-                    const mediaId = item.media_id;
-                    const imageUrl = postData.media_metadata[mediaId].s.u;
-                    galleryHtml += `
-                        <img class="gallery-image" src="${imageUrl}" alt="Gallery image ${index + 1}" style="transform: translateX(${index * 100}%);">
-                    `;
-                });
-
-                galleryHtml += `
-                    <div class="gallery-nav prev">&lt;</div>
-                    <div class="gallery-nav next">&gt;</div>
-                    </div>
-                `;
-
-                return galleryHtml;
-            }
-
-            async function fetchVideoUrl(url) {
-    if (url.includes('redgifs.com')) {
-        const oEmbedUrl = `https://api.redgifs.com/v2/oembed?url=${encodeURIComponent(url)}`;
-        try {
-            const response = await fetch(oEmbedUrl);
-            const data = await response.json();
-            return data.url;
-        } catch (error) {
-            console.error('Error fetching Redgifs video:', error);
-            return null;
-        }
-    } else if (url.includes('streamable.com')) {
-        const oEmbedUrl = `https://api.streamable.com/oembed.json?url=${encodeURIComponent(url)}`;
-        try {
-            const response = await fetch(oEmbedUrl);
-            const data = await response.json();
-            return data.thumbnail_url.replace('jpg', 'mp4');
-        } catch (error) {
-            console.error('Error fetching Streamable video:', error);
-            return null;
-        }
-    }
-    return null;
-}
-
-            function initializeGallery(postElement) {
-                const galleryContainer = postElement.querySelector('.gallery-container');
-                if (!galleryContainer) return;
-
-                const images = galleryContainer.querySelectorAll('.gallery-image');
-                const counter = galleryContainer.querySelector('.gallery-counter');
-                const prevBtn = galleryContainer.querySelector('.gallery-nav.prev');
-                const nextBtn = galleryContainer.querySelector('.gallery-nav.next');
-                let currentIndex = 0;
-
-                function updateGallery() {
-                    images.forEach((img, index) => {
-                        img.style.transform = `translateX(${(index - currentIndex) * 100}%)`;
-                    });
-                    counter.textContent = `${currentIndex + 1}/${images.length}`;
-                }
-
-                prevBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    currentIndex = (currentIndex - 1 + images.length) % images.length;
-                    updateGallery();
-                });
-
-                nextBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    currentIndex = (currentIndex + 1) % images.length;
-                    updateGallery();
-                });
-
-                let startX, moveX;
-                galleryContainer.addEventListener('touchstart', (e) => {
-                    startX = e.touches[0].clientX;
-                });
-
-                galleryContainer.addEventListener('touchmove', (e) => {
-                    moveX = e.touches[0].clientX;
-                });
-
-                galleryContainer.addEventListener('touchend', () => {
-                    if (startX - moveX > 50) {
-                        nextBtn.click();
-                    } else if (moveX - startX > 50) {
-                        prevBtn.click();
-                    }
-                });
-            }
-
-            function toggleDarkMode() {
-                document.body.classList.toggle('light-mode', !darkModeToggle.checked);
-            }
-
-            function toggleAutoplay() {
-                const videos = document.querySelectorAll('video');
-                videos.forEach(video => {
-                    if (autoplayToggle.checked) {
-                        video.setAttribute('autoplay', '');
-                    } else {
-                        video.removeAttribute('autoplay');
-                    }
-                });
-            }
-
-            function toggleNSFW() {
-                updateCategoryButtons();
-                applyFilters();
-                if (nsfwToggle.checked) {
-                    createBubbles();
-                } else {
-                    nsfwBubbles.innerHTML = '';
-                }
-            }
-
-            function createBubbles() {
-                nsfwBubbles.innerHTML = '';
-                for (let i = 0; i < 20; i++) {
-                    const bubble = document.createElement('div');
-                    bubble.className = 'bubble';
-                    bubble.style.left = `${Math.random() * 100}%`;
-                    bubble.style.animationDelay = `${Math.random() * 2}s`;
-                    bubble.style.width = `${Math.random() * 10 + 5}px`;
-                    bubble.style.height = bubble.style.width;
-                    nsfwBubbles.appendChild(bubble);
-                }
-            }
-
-            function updateUserPreferences() {
-                localStorage.setItem('userPreferences', JSON.stringify(userPreferences));
-                setCookie('userPreferences', JSON.stringify(userPreferences), 30);
-            }
-
-            function loadUserPreferences() {
-                const savedPreferences = localStorage.getItem('userPreferences') || getCookie('userPreferences');
-                if (savedPreferences) {
-                    userPreferences = JSON.parse(savedPreferences);
-                    if (!userPreferences.isFirstTimeUser) {
-                        welcomeHub.style.display = 'none';
-                        generateFYPFeed();
-                    } else {
-                        showWelcomeHub();
-                    }
-                } else {
-                    showWelcomeHub();
-                }
-            }
-
-            function showWelcomeHub() {
-                welcomeHub.style.display = 'block';
+            uwuModeToggle.addEventListener('change', (e) => {
                 overlay.style.display = 'block';
-            }
-
-            function generateFYPFeed(forceRefresh = false) {
-                const seed = Math.floor(Math.random() * 1000000);
-                const likedSubreddits = userPreferences.likedPosts.map(postId => {
-                    // Here you would normally fetch the subreddit for each liked post
-                    // For this example, we'll just use a placeholder
-                    return 'placeholder_subreddit';
-                });
-
-                const viewedSubreddits = userPreferences.viewedSubreddits;
-                const searchTerms = userPreferences.searchHistory;
-
-                // Combine and deduplicate the data
-                const userInterests = [...new Set([...likedSubreddits, ...viewedSubreddits, ...searchTerms, ...userPreferences.selectedSubreddits, ...userPreferences.selectedMatureSubreddits])];
-
-                // Generate a query based on user interests
-                const query = userInterests.join(' OR ');
-
-                // Fetch posts based on user interests
-                const sortBy = sortBySelect.value;
-                const timeRange = timeRangeSelect.value;
-                const contentType = contentTypeSelect.value;
-
-                if (forceRefresh) {
-                    // If it's a forced refresh, we'll use a random selection of interests
-                    const randomInterests = userInterests.sort(() => 0.5 - Math.random()).slice(0, 5);
-                    const randomQuery = randomInterests.join(' OR ');
-                    searchReddit(randomQuery, sortBy, timeRange, contentType, 'all', seed);
-                } else {
-                    searchReddit(query, sortBy, timeRange, contentType, 'all', seed);
-                }
-            }
-
-            function showLoadingAnimation() {
-                const loadingAnimation = document.createElement('div');
-                loadingAnimation.className = 'loading-animation';
-                container.appendChild(loadingAnimation);
-            }
-
-            function hideLoadingAnimation() {
-                const loadingAnimation = container.querySelector('.loading-animation');
-                if (loadingAnimation) {
-                    loadingAnimation.remove();
-                }
-            }
-
-            function showVideoPlayerHub(videoElement) {
-                currentVideoElement = videoElement;
-                videoPlayerHub.style.display = 'block';
-                updateVideoProgress();
-                updatePlayPauseButton();
-                updateMuteButton();
-            }
-
-            function hideVideoPlayerHub() {
-                videoPlayerHub.style.display = 'none';
-                currentVideoElement = null;
-            }
-
-            function updateVideoProgress() {
-                if (currentVideoElement) {
-                    const progress = (currentVideoElement.currentTime / currentVideoElement.duration) * 100;
-                    videoProgress.style.width = `${progress}%`;
-                    videoTime.textContent = `${formatTime(currentVideoElement.currentTime)} / ${formatTime(currentVideoElement.duration)}`;
-                }
-            }
-
-            function formatTime(timeInSeconds) {
-                const minutes = Math.floor(timeInSeconds / 60);
-                const seconds = Math.floor(timeInSeconds % 60);
-                return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            }
-
-            function updatePlayPauseButton() {
-                if (currentVideoElement) {
-                    playPauseBtn.innerHTML = currentVideoElement.paused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
-                }
-            }
-
-            function updateMuteButton() {
-                if (currentVideoElement) {
-                    muteBtn.innerHTML = currentVideoElement.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-                }
-            }
-
-            playPauseBtn.addEventListener('click', () => {
-                if (currentVideoElement) {
-                    if (currentVideoElement.paused) {
-                        currentVideoElement.play();
-                    } else {
-                        currentVideoElement.pause();
-                    }
-                    updatePlayPauseButton();
+                uwuConfirm.style.display = 'block';
+                if (!e.target.checked) {
+                    document.querySelector('.uwu-text').textContent = 'No more UwU?';
                 }
             });
 
-            muteBtn.addEventListener('click', () => {
-                if (currentVideoElement) {
-                    currentVideoElement.muted = !currentVideoElement.muted;
-                    updateMuteButton();
-                }
-            });
-
-            videoProgressBar.addEventListener('click', (e) => {
-                if (currentVideoElement) {
-                    const rect = videoProgressBar.getBoundingClientRect();
-                    const pos = (e.clientX - rect.left) / videoProgressBar.offsetWidth;
-                    currentVideoElement.currentTime = pos * currentVideoElement.duration;
-                    updateVideoProgress();
-                }
-            });
-
-            welcomeYesBtn.addEventListener('click', () => {
-                welcomeHub.innerHTML = `
-                    <h2>Welcome to <span class="glow">Mokie</span></h2>
-                `;
-                setTimeout(() => {
-                    showInterestSelection();
-                }, 3000);
-            });
-
-            welcomeNoBtn.addEventListener('click', () => {
-                userPreferences.isFirstTimeUser = false;
-                updateUserPreferences();
-                welcomeHub.style.display = 'none';
+            uwuYesBtn.addEventListener('click', async () => {
+                const isEnabling = uwuModeToggle.checked;
+                await toggleUwuMode(isEnabling);
+                uwuConfirm.style.display = 'none';
                 overlay.style.display = 'none';
+            });
+
+            uwuNoBtn.addEventListener('click', () => {
+                uwuModeToggle.checked = !uwuModeToggle.checked;
+                uwuConfirm.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+
+            function performSearch() {
+                const searchTerm = elements.searchBar.value.trim();
+                if (searchTerm) {
+                    state.userPreferences.searchHistory.push(searchTerm);
+                    setLocalStorage('userPreferences', state.userPreferences);
+                    // Show loading state
+                    elements.container.innerHTML = `
+                        <div class="post-container">
+                            <div class="loading-animation"></div>
+                        </div>
+                    `;
+                    searchReddit(searchTerm).catch(error => {
+                        console.error('Search error:', error);
+                        elements.container.innerHTML = `
+                            <div class="video-error">
+                                Error searching content. Please try again later.<br>
+                                <small>${error.message}</small>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            // Handle Enter key for search
+            elements.searchBar.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            elements.sortBySelect.addEventListener('change', () => applyFilters());
+            elements.timeRangeSelect.addEventListener('change', () => applyFilters());
+            elements.contentTypeSelect.addEventListener('change', () => applyFilters());
+
+            elements.hubLogo.addEventListener('click', () => {
+                state.currentSubreddit = '';
                 generateFYPFeed();
             });
 
-            function showInterestSelection() {
-                welcomeHub.innerHTML = `
-                    <h2>What's your interest?</h2>
-                    <div class="subreddit-selection"></div>
-                    <button id="interestDoneBtn" disabled>DONE</button>
-                    <button id="interestSkipBtn">Skip</button>
-                `;
+            elements.immersiveBtn.addEventListener('click', toggleImmersiveMode);
 
-                const subredditSelection = welcomeHub.querySelector('.subreddit-selection');
-                const interestDoneBtn = document.getElementById('interestDoneBtn');
-                const interestSkipBtn = document.getElementById('interestSkipBtn');
-
-                safeSubreddits.forEach(subreddit => {
-                    const btn = document.createElement('button');
-                    btn.className = 'subreddit-btn';
-                    btn.textContent = subreddit;
-                    btn.addEventListener('click', () => {
-                        btn.classList.toggle('selected');
-                        const selectedCount = subredditSelection.querySelectorAll('.selected').length;
-                        interestDoneBtn.disabled = selectedCount < 5;
-                    });
-                    subredditSelection.appendChild(btn);
-                });
-
-                interestDoneBtn.addEventListener('click', () => {
-                    const selectedSubreddits = Array.from(subredditSelection.querySelectorAll('.selected')).map(btn => btn.textContent);
-                    userPreferences.selectedSubreddits = selectedSubreddits;
-                    showMatureContentQuestion();
-                });
-
-                interestSkipBtn.addEventListener('click', () => {
-                    showMatureContentQuestion();
-                });
+            // UI Toggle Functions
+            function toggleImmersiveMode() {
+                document.body.classList.toggle('immersive-mode');
+                if (document.body.classList.contains('immersive-mode')) {
+                    hideHub();
+                } else {
+                    showHub();
+                }
             }
 
-            function showMatureContentQuestion() {
-                welcomeHub.innerHTML = `
-                    <h2>Do you like Mature Content? <span class="pulse">+18</span></h2>
-                    <button id="matureYesBtn">Yes</button>
-                    <button id="matureNoBtn">No</button>
-                `;
-
-                const matureYesBtn = document.getElementById('matureYesBtn');
-                const matureNoBtn = document.getElementById('matureNoBtn');
-
-                matureYesBtn.addEventListener('click', showMatureSubredditSelection);
-                matureNoBtn.addEventListener('click', finishOnboarding);
+            function toggleDarkMode() {
+                document.body.classList.toggle('light-mode', !elements.darkModeToggle.checked);
+                setLocalStorage('darkMode', elements.darkModeToggle.checked);
             }
 
-            function showMatureSubredditSelection() {
-                welcomeHub.innerHTML = `
-                    <h2>Select Mature Subreddits</h2>
-                    <div class="subreddit-selection"></div>
-                    <button id="matureDoneBtn" disabled>DONE</button>
-                    <button id="matureSkipBtn">Skip</button>
-                `;
-
-                const subredditSelection = welcomeHub.querySelector('.subreddit-selection');
-                const matureDoneBtn = document.getElementById('matureDoneBtn');
-                const matureSkipBtn = document.getElementById('matureSkipBtn');
-
-                nsfwSubreddits.forEach(subreddit => {
-                    const btn = document.createElement('button');
-                    btn.className = 'subreddit-btn';
-                    btn.textContent = subreddit;
-                    btn.addEventListener('click', () => {
-                        btn.classList.toggle('selected');
-                        const selectedCount = subredditSelection.querySelectorAll('.selected').length;
-                        matureDoneBtn.disabled = selectedCount < 5;
-                    });
-                    subredditSelection.appendChild(btn);
-                });
-
-                matureDoneBtn.addEventListener('click', () => {
-                    const selectedMatureSubreddits = Array.from(subredditSelection.querySelectorAll('.selected')).map(btn => btn.textContent);
-                    userPreferences.selectedMatureSubreddits = selectedMatureSubreddits;
-                    finishOnboarding();
-                });
-
-                matureSkipBtn.addEventListener('click', finishOnboarding);
-            }
-
-            function finishOnboarding() {
-                welcomeHub.innerHTML = `
-                    <h2>Thank you, and Enjoy <span class="glow">Moking</span> Around!</h2>
-                `;
-                setTimeout(() => {
-                    userPreferences.isFirstTimeUser = false;
-                    updateUserPreferences();
-                    welcomeHub.style.display = 'none';
-                    overlay.style.display = 'none';
-                    generateFYPFeed();
-                }, 3000);
-            }
-
-            function toggleUwUMode() {
-                userPreferences.uwuMode = !userPreferences.uwuMode;
-                document.body.classList.toggle('uwu-mode', userPreferences.uwuMode);
-                updateCategoryButtons();
+            function toggleNsfwMode() {
+                setLocalStorage('nsfwMode', elements.nsfwModeToggle.checked);
+                // Update categories immediately
+                populateCategories();
+                // Show filter section to display new categories
+                elements.filterSection.classList.remove('hidden');
+                elements.filterSection.style.display = 'block';
+                // Refresh feed with new content
                 generateFYPFeed(true);
-                updateUserPreferences();
             }
 
-let refreshLongPressTimer;
-let isLongPress = false;
-
-refreshBtn.addEventListener('mousedown', startLongPress);
-refreshBtn.addEventListener('touchstart', startLongPress);
-refreshBtn.addEventListener('mouseup', endLongPress);
-refreshBtn.addEventListener('mouseleave', endLongPress);
-refreshBtn.addEventListener('touchend', endLongPress);
-
-function startLongPress(e) {
-    isLongPress = false;
-    refreshLongPressTimer = setTimeout(() => {
-        isLongPress = true;
-        getSuggestiveContent();
-    }, 1000); // Long press threshold: 1 second
-}
-
-function endLongPress() {
-    clearTimeout(refreshLongPressTimer);
-    if (!isLongPress) {
-        generateFYPFeed(true);
-    }
-}
-
-function getSuggestiveContent() {
-    const currentPost = document.querySelector('.post-container');
-    if (currentPost) {
-        const subredditName = currentPost.querySelector('.subreddit-info').textContent.slice(2); // Remove 'r/' prefix
-        fetchRelatedSubreddits(subredditName).then(relatedSubs => {
-            const query = relatedSubs.join(' OR ');
-            searchReddit(query, 'hot', 'all', 'all', 'all');
-        });
-    }
-}
-
-async function fetchRelatedSubreddits(subreddit) {
-    try {
-        const response = await fetch(`https://www.reddit.com/r/${subreddit}/about.json`);
-        const data = await response.json();
-        return data.data.advertiser_category.split(',').map(s => s.trim());
-    } catch (error) {
-        console.error('Error fetching related subreddits:', error);
-        return [subreddit]; // Return the original subreddit if fetching fails
-    }
-}
-
-uwuBtn.addEventListener('click', () => {
-    settingsModal.style.display = 'none';
-    if (userPreferences.uwuMode) {
-        uwuPrompt.innerHTML = `
-            <h3>No more UwU?</h3>
-            <button id="uwuYesBtn">Yes</button>
-            <button id="uwuNoBtn">No</button>
-        `;
-    } else {
-        uwuPrompt.innerHTML = `
-            <h3>Feeling UwU?</h3>
-            <button id="uwuYesBtn">Yes</button>
-            <button id="uwuNoBtn">No</button>
-        `;
-    }
-    uwuPrompt.style.display = 'block';
-    overlay.style.display = 'block';
-});
-
-uwuPrompt.addEventListener('click', (e) => {
-    if (e.target.id === 'uwuYesBtn') {
-        toggleUwUMode();
-        uwuPrompt.style.display = 'none';
-        settingsModal.style.display = 'block';
-    } else if (e.target.id === 'uwuNoBtn') {
-        uwuPrompt.style.display = 'none';
-        settingsModal.style.display = 'block';
-    }
-});
-
-            function createUwUBubbles() {
-                for (let i = 0; i < 20; i++) {
-                    const bubble = document.createElement('div');
-                    bubble.className = 'uwu-bubble';
-                    bubble.style.left = `${Math.random() * 100}%`;
-                    bubble.style.animationDelay = `${Math.random() * 2}s`;
-                    bubble.style.width = `${Math.random() * 10 + 5}px`;
-                    bubble.style.height = bubble.style.width;
-                    document.body.appendChild(bubble);
-                }
+            function toggleAutoplay() {
+                setLocalStorage('autoplayVideos', elements.autoplayToggle.checked);
             }
 
-            immersiveBtn.addEventListener('click', () => {
-                document.documentElement.requestFullscreen();
-                document.body.classList.add('immersive-mode');
-            });
+            function changeVideoPlayer() {
+                setLocalStorage('videoPlayer', elements.videoPlayerSelect.value);
+                generateFYPFeed(true);
+            }
 
-            document.addEventListener('fullscreenchange', () => {
-                if (!document.fullscreenElement) {
-                    document.body.classList.remove('immersive-mode');
+            // Preferences and Categories
+            function loadUserPreferences() {
+                const storedPreferences = getLocalStorage('userPreferences');
+                if (storedPreferences) {
+                    state.userPreferences = storedPreferences;
                 }
-            });
+                elements.darkModeToggle.checked = getLocalStorage('darkMode') !== false;
+                elements.autoplayToggle.checked = getLocalStorage('autoplayVideos') !== false;
+                elements.nsfwModeToggle.checked = getLocalStorage('nsfwMode') === true;
+                elements.videoPlayerSelect.value = getLocalStorage('videoPlayer') || 'default';
+                toggleDarkMode();
+                populateCategories();
+            }
+
+            function populateCategories() {
+                const nsfwMode = getLocalStorage('nsfwMode');
+                const uwuMode = document.body.classList.contains('uwu-mode');
+                const categoriesToShow = uwuMode ? uwuCategories : (nsfwMode ? nsfwCategories : categories);
+                
+                elements.categoryButtons.innerHTML = ''; // Clear existing categories
+                
+                categoriesToShow.forEach(category => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-btn';
+                    btn.textContent = category;
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        state.selectedCategory = category.toLowerCase();
+                        applyCategoryFilter();
+                    });
+                    elements.categoryButtons.appendChild(btn);
+                });
+            }
+
+            function applyCategoryFilter() {
+                elements.container.innerHTML = '';
+                const nsfwMode = getLocalStorage('nsfwMode');
+                const defaultSubreddits = nsfwMode ? nsfwSubreddits : safeSubreddits;
+                const subreddits = state.userPreferences.selectedSubreddits.length > 0 ? 
+                    state.userPreferences.selectedSubreddits : defaultSubreddits;
+                
+                // Map category to corresponding subreddits
+                const categoryMap = {
+                    nsfw: ['nsfw'],
+                    gonewild: ['gonewild'],
+                    hentai: ['hentai'],
+                    rule34: ['rule34'],
+                    asian: ['asiansgonewild'],
+                    petite: ['bustypetite'],
+                    hardcore: ['nsfwhardcore'],
+                    gifs: ['nsfw_gifs'],
+                    amateur: ['gonewild'],
+                    professional: ['porninfifteenseconds'],
+                    // Safe categories
+                    technology: ['technology', 'programming', 'gadgets'],
+                    science: ['science', 'space', 'askscience'],
+                    art: ['art', 'drawing', 'painting'],
+                    music: ['music', 'listentothis'],
+                    gaming: ['gaming', 'games', 'pcgaming'],
+                    movies: ['movies', 'television'],
+                    photography: ['pics', 'itookapicture'],
+                    food: ['food', 'cooking'],
+                    travel: ['travel', 'earthporn'],
+                    sports: ['sports', 'nba', 'soccer']
+                };
+
+                const category = state.selectedCategory.toLowerCase();
+                const categorySubreddits = categoryMap[category] || [];
+                const filteredSubreddits = categorySubreddits.length > 0 ? 
+                    categorySubreddits : 
+                    subreddits.filter(sub => sub.toLowerCase().includes(category));
+
+                filteredSubreddits.length > 0 ? fetchAndDisplayPosts(filteredSubreddits) : generateFYPFeed();
+            }
 
             loadUserPreferences();
-            updateCategoryButtons();
 
-            if (userPreferences.uwuMode) {
-                document.body.classList.add('uwu-mode');
-                createUwUBubbles();
+            function searchReddit(term) {
+                return new Promise((resolve, reject) => {
+                    // Create a unique callback name
+                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                    
+                    // Define the callback function before creating the script
+                    window[callbackName] = function(data) {
+                        // Clean up
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        
+                        if (data && data.data && data.data.children) {
+                            displayPosts(data.data.children, true);
+                            resolve(data.data.children);
+                        } else {
+                            elements.container.innerHTML = `
+                                <div class="video-error">
+                                    Error loading content. Please try again later.<br>
+                                    <small>Invalid response format</small>
+                                </div>
+                            `;
+                            reject(new Error('Invalid response format'));
+                        }
+                    };
+
+                    let url = `https://www.reddit.com/search.rss?q=${encodeURIComponent(term)}&sort=relevance&limit=25`;
+                    
+                    const nsfwMode = getLocalStorage('nsfwMode');
+                    if (nsfwMode) {
+                        url += '&include_over_18=on';
+                    }
+                    
+                    // Use fetch with no-cors mode
+                    fetch(url, { mode: 'no-cors' })
+                        .then(response => response.text())
+                        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+                        .then(data => {
+                            const items = data.querySelectorAll('item');
+                            const posts = Array.from(items).map(item => ({
+                                data: {
+                                    title: item.querySelector('title').textContent,
+                                    author: item.querySelector('author').textContent,
+                                    url: item.querySelector('link').textContent,
+                                    permalink: item.querySelector('link').textContent,
+                                    subreddit: item.querySelector('category').textContent,
+                                    ups: 0, // Not available in RSS
+                                    num_comments: 0, // Not available in RSS
+                                    is_video: false,
+                                    post_hint: 'link'
+                                }
+                            }));
+                            resolve(posts);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching RSS:', error);
+                            container.innerHTML = `
+                                <div class="video-error">
+                                    Error loading content. Please try again later.<br>
+                                    <small>${error.message || 'Failed to load data'}</small>
+                                </div>
+                            `;
+                            reject(error);
+                        });
+                });
             }
 
-            setInterval(() => {
-                if (currentVideoElement) {
-                    updateVideoProgress();
+            async function getSubredditPosts(subreddit, sort = 'hot', time = 'day', limit = 10, retries = 3) {
+                const makeRequest = async () => {
+                    return new Promise((resolve, reject) => {
+                        const callbackName = `callback${Date.now()}`;
+                        const url = `https://www.reddit.com/r/${encodeURIComponent(subreddit)}/${sort}.json?limit=${limit}&jsonp=${callbackName}`;
+                        
+                        window[callbackName] = function(response) {
+                            delete window[callbackName];
+                            script.remove();
+                            
+                            if (response && response.data && response.data.children) {
+                                // Filter for media content
+                                const mediaContent = response.data.children.filter(post => {
+                                    const p = post.data;
+                                    return p.url && (
+                                        p.url.match(/\.(jpg|jpeg|png|gif|mp4)$/i) ||
+                                        p.url.includes('v.redd.it') ||
+                                        p.url.includes('i.redd.it') ||
+                                        p.url.includes('redgifs.com') ||
+                                        p.url.includes('gfycat.com') ||
+                                        p.url.includes('imgur.com') ||
+                                        p.is_video
+                                    );
+                                });
+                                resolve(mediaContent);
+                            } else {
+                                reject(new Error('Invalid response format'));
+                            }
+                        };
+
+                        const script = document.createElement('script');
+                        script.src = url;
+                        script.onerror = () => {
+                            delete window[callbackName];
+                            script.remove();
+                            reject(new Error('Failed to load data'));
+                        };
+                        document.body.appendChild(script);
+                    });
+                };
+
+                try {
+                    return await makeRequest();
+                } catch (error) {
+                    console.error(`Error fetching ${subreddit}:`, error.message);
+                    if (retries > 0) {
+                        console.log(`Retrying ${subreddit}... (${retries} attempts left)`);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        return getSubredditPosts(subreddit, sort, time, limit, retries - 1);
+                    }
+                    return [];
                 }
-            }, 1000);
+            }
+
+            function handleRateLimit(error, retryFunction) {
+                if (error.response && error.response.status === 429) {
+                    isRateLimited = true;
+                    const resetAfter = parseInt(error.response.headers['x-ratelimit-reset'] || '60');
+                    rateLimitResetTime = Date.now() + resetAfter * 1000;
+
+                    if (maxRetries > 0) {
+                        const backoffTime = Math.pow(2, maxRetries) * 1000;
+                        console.log(`Rate limited. Retrying after ${backoffTime}ms`);
+                        return new Promise(resolve => setTimeout(() => resolve(retryFunction()), backoffTime));
+                    }
+                }
+                console.error('Error:', error);
+                return [];
+            }
+
+            async function fetchAndDisplayPosts(subreddits) {
+                for (const subreddit of subreddits) {
+                    const posts = await getSubredditPosts(subreddit);
+                    displayPosts(posts);
+                }
+            }
+
+            // Store fetched posts globally
+            let allFetchedPosts = [];
+            let currentPostIndex = 0;
+
+            // Shuffle array function
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            async function generateFYPFeed(refresh = false) {
+                if (refresh) {
+                    elements.container.innerHTML = '';
+                    allFetchedPosts = [];
+                    currentPostIndex = 0;
+                }
+
+                const nsfwMode = getLocalStorage('nsfwMode');
+                const uwuMode = document.body.classList.contains('uwu-mode');
+                const subreddits = state.userPreferences.selectedSubreddits.length > 0 ? 
+                    state.userPreferences.selectedSubreddits : 
+                    (uwuMode ? uwuSubreddits : (nsfwMode ? nsfwSubreddits : safeSubreddits));
+
+                // Shuffle subreddits for randomization
+                const shuffledSubreddits = shuffleArray([...subreddits]);
+
+                // Show loading state
+                elements.container.innerHTML = `
+                    <div class="post-container">
+                        <div class="loading-animation"></div>
+                    </div>
+                `;
+
+                try {
+                    // If we don't have any posts yet, fetch from a few random subreddits
+                    if (allFetchedPosts.length === 0) {
+                        // Take 3 random subreddits for initial load
+                        const initialSubreddits = shuffledSubreddits.slice(0, 3);
+                        
+                        for (let i = 0; i < initialSubreddits.length; i++) {
+                            const subreddit = initialSubreddits[i];
+                            try {
+                                // Exponential backoff delay between requests
+                                const delay = Math.pow(2, i) * 1000;
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                
+                                const posts = await getSubredditPosts(subreddit, 'hot', 'day', 10);
+                                if (posts.length > 0) {
+                                    const filteredPosts = nsfwMode ? 
+                                        posts.filter(post => post.data.over_18) : 
+                                        posts.filter(post => !post.data.over_18);
+                                    allFetchedPosts.push(...filteredPosts);
+                                    
+                                    // If we have enough posts for initial display, shuffle and show them
+                                    if (allFetchedPosts.length >= 4) {
+                                        allFetchedPosts = shuffleArray(allFetchedPosts);
+                                        // Clear loading state and display first 4 posts
+                                        if (elements.container.innerHTML.includes('loading-animation')) {
+                                            elements.container.innerHTML = '';
+                                            const initialPosts = allFetchedPosts.slice(0, 4);
+                                            displayPosts(initialPosts);
+                                            currentPostIndex = 4;
+                                        }
+                                    }
+                                }
+                            } catch (error) {
+                                console.error(`Error loading ${subreddit}:`, error);
+                                // On error, add extra delay before next request
+                                await new Promise(resolve => setTimeout(resolve, 3000));
+                            }
+                        }
+                        
+                        // If we still don't have enough posts, show error
+                        if (allFetchedPosts.length === 0) {
+                            elements.container.innerHTML = `
+                                <div class="video-error">
+                                    Unable to load content. Please try again later.<br>
+                                    <small>No posts available at the moment</small>
+                                </div>
+                            `;
+                            return;
+                        }
+                    }
+
+                    // Clear loading state
+                    if (elements.container.innerHTML.includes('loading-animation')) {
+                        elements.container.innerHTML = '';
+                    }
+
+                    // Display next 4 posts
+                    const postsToDisplay = allFetchedPosts.slice(currentPostIndex, currentPostIndex + 4);
+                    if (postsToDisplay.length > 0) {
+                        displayPosts(postsToDisplay);
+                        currentPostIndex += 4;
+                    }
+
+                    // If we're running low on posts, fetch more in the background
+                    if (currentPostIndex >= allFetchedPosts.length - 8) {
+                        // Take next 2 random subreddits for background loading
+                        const nextSubreddits = shuffledSubreddits.slice(3, 5);
+                        
+                        for (const subreddit of nextSubreddits) {
+                            try {
+                                // Longer delay for background loading
+                                await new Promise(resolve => setTimeout(resolve, 5000));
+                                
+                                const posts = await getSubredditPosts(subreddit, 'hot', 'day', 10);
+                                if (posts.length > 0) {
+                                    const filteredPosts = nsfwMode ? 
+                                        posts.filter(post => post.data.over_18) : 
+                                        posts.filter(post => !post.data.over_18);
+                                    // Add new posts to the end and shuffle just the new ones
+                                    allFetchedPosts.push(...shuffleArray(filteredPosts));
+                                }
+                            } catch (error) {
+                                console.error(`Error loading more from ${subreddit}:`, error);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading feed:', error.message);
+                    console.error('Stack trace:', error.stack);
+                    if (elements.container.innerHTML.includes('loading-animation')) {
+                        elements.container.innerHTML = `
+                            <div class="video-error">
+                                Error loading content. Please try again later.<br>
+                                <small>${error.message || 'Unknown error'}</small>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            function applyFilters() {
+                const sort = elements.sortBySelect.value;
+                const time = elements.timeRangeSelect.value;
+                const contentType = elements.contentTypeSelect.value;
+                const nsfwMode = getLocalStorage('nsfwMode');
+
+                elements.container.innerHTML = '';
+                if (state.currentSubreddit) {
+                    getSubredditPosts(state.currentSubreddit, sort, time).then(posts => {
+                        const filteredPosts = posts.filter(post => 
+                            filterContentType(post, contentType) && 
+                            (nsfwMode ? post.data.over_18 : !post.data.over_18)
+                        );
+                        displayPosts(filteredPosts);
+                    });
+                } else {
+                    generateFYPFeed();
+                }
+            }
+
+            function filterContentType(post, contentType) {
+                if (contentType === 'all') return true;
+                if (contentType === 'image' && post.data.post_hint === 'image') return true;
+                if (contentType === 'video' && post.data.is_video) return true;
+                if (contentType === 'gallery' && post.data.is_gallery) return true;
+                if (contentType === 'gif_video' && (post.data.is_video || post.data.post_hint === 'hosted:video')) return true;
+                return false;
+            }
+
+            function displayPosts(posts, clear = false) {
+                if (clear) {
+                    elements.container.innerHTML = '';
+                }
+                const nsfwMode = getLocalStorage('nsfwMode');
+                posts.forEach(post => {
+                    const postData = post.data;
+                    if (!nsfwMode && postData.over_18) return;
+
+                    const postContainer = document.createElement('div');
+                    postContainer.className = 'post-container';
+                    postContainer.innerHTML = `
+                        <div class="post-content"></div>
+                        <div class="actions">
+                            <button class="action-btn heart-btn"></button>
+                            <span class="action-count">${postData.ups}</span>
+                            <button class="action-btn comment-btn"></button>
+                            <span class="action-count">${postData.num_comments}</span>
+                            <button class="action-btn share-btn"></button>
+                            <button class="three-dot-btn"></button>
+                        </div>
+                        <div class="post-info-container">
+                            <div class="subreddit-info">r/${postData.subreddit}</div>
+                            <div class="user-info">
+                                <div class="username">u/${postData.author}</div>
+                                <div class="description truncated">${postData.title}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    const postContent = postContainer.querySelector('.post-content');
+
+                    if (postData.is_video || postData.url.includes('v.redd.it')) {
+                        const videoContainer = document.createElement('div');
+                        videoContainer.className = 'video-container';
+                        const playerType = getLocalStorage('videoPlayer') || 'default';
+                        
+                        // Get video URL with fallbacks
+                        let videoUrl;
+                        if (postData.media && postData.media.reddit_video) {
+                            videoUrl = postData.media.reddit_video.fallback_url;
+                        } else if (postData.url.includes('v.redd.it')) {
+                            // Convert v.redd.it URL to direct video URL
+                            videoUrl = `${postData.url}/DASH_720.mp4`;
+                        }
+
+                        if (!videoUrl) {
+                            videoContainer.innerHTML = `
+                                <div class="video-error">
+                                    Video URL not available.<br>
+                                    <small>Try opening in Reddit</small>
+                                </div>
+                            `;
+                            postContent.appendChild(videoContainer);
+                            return;
+                        }
+
+                        const loadingDiv = document.createElement('div');
+                        loadingDiv.className = 'video-loading';
+                        videoContainer.appendChild(loadingDiv);
+
+                        // Common video HTML with preload metadata for faster loading
+                        const videoHTML = `
+                            <video class="video-player" loop playsinline preload="metadata" controls>
+                                <source src="${videoUrl}" type="video/mp4">
+                                <p class="video-error">Your browser doesn't support HTML5 video</p>
+                            </video>
+                        `;
+
+                        // Add player-specific HTML
+                        if (playerType === 'default') {
+                            videoContainer.innerHTML += videoHTML + `
+                                <div class="video-player-hub">
+                                    <button class="video-control-btn play-pause-btn"></button>
+                                    <div class="video-progress-bar">
+                                        <div class="video-progress"></div>
+                                        <div class="video-scrubber"></div>
+                                    </div>
+                                    <button class="video-control-btn mute-btn"></button>
+                                    <span class="video-time">0:00 / 0:00</span>
+                                </div>
+                            `;
+                        } else {
+                            videoContainer.innerHTML += videoHTML;
+                        }
+
+                        // Setup common video event handlers
+                        const video = videoContainer.querySelector('.video-player');
+                        
+                        const handleLoad = () => {
+                            loadingDiv.remove();
+                            video.removeEventListener('loadeddata', handleLoad);
+                        };
+
+                        const handleError = (e) => {
+                            console.error('Video loading error:', e);
+                            loadingDiv.remove();
+                            videoContainer.innerHTML = `
+                                <div class="video-error">
+                                    Error loading video. Please try again later.<br>
+                                    <small>${e.message || 'Unknown error'}</small>
+                                </div>
+                            `;
+                            video.removeEventListener('error', handleError);
+                        };
+
+                        // Add timeout to handle cases where video fails to load without triggering error
+                        const loadTimeout = setTimeout(() => {
+                            if (!video.readyState) {
+                                handleError(new Error('Video load timeout'));
+                            }
+                        }, 10000); // 10 second timeout
+
+                        // Function to cleanup event listeners and timeout
+                        const cleanup = () => {
+                            clearTimeout(loadTimeout);
+                            video.removeEventListener('loadeddata', handleLoad);
+                            video.removeEventListener('error', handleError);
+                            video.removeEventListener('loadeddata', cleanup);
+                            video.removeEventListener('error', cleanup);
+                        };
+
+                        // Add event listeners with cleanup
+                        video.addEventListener('loadeddata', handleLoad);
+                        video.addEventListener('error', handleError);
+                        video.addEventListener('loadeddata', cleanup, { once: true });
+                        video.addEventListener('error', cleanup, { once: true });
+                        postContent.appendChild(videoContainer);
+                        setupVideoPlayer(videoContainer);
+                    } else if (postData.post_hint === 'image') {
+                        const img = document.createElement('img');
+                        img.className = 'post-image';
+                        img.src = postData.url;
+                        img.alt = postData.title;
+                        img.loading = 'lazy';
+                        postContent.appendChild(img);
+                    } else if (postData.is_gallery) {
+                        setupGallery(postContent, postData);
+                    }
+
+                    elements.container.appendChild(postContainer);
+                    setupPostInteractions(postContainer, postData);
+                });
+            }
+
+            function setupVideoPlayer(videoContainer) {
+                const videoPlayerType = getLocalStorage('videoPlayer') || 'default';
+                const video = videoContainer.querySelector('.video-player');
+                let player;
+
+                // Destroy existing player if any
+                if (currentVideoPlayer) {
+                    if (currentVideoPlayer.destroy) currentVideoPlayer.destroy();
+                    else if (currentVideoPlayer.dispose) currentVideoPlayer.dispose();
+                }
+
+                switch (videoPlayerType) {
+                    case 'plyr':
+                        // Setup Plyr player
+                        player = new Plyr(video, {
+                            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+                            autoplay: getLocalStorage('autoplayVideos') !== false,
+                            muted: true,
+                            loop: true,
+                            keyboard: { focused: true, global: true }
+                        });
+
+                        player.on('play', () => {
+                            if (currentVideoPlayer && currentVideoPlayer !== player) {
+                                currentVideoPlayer.pause();
+                            }
+                            currentVideoPlayer = player;
+                        });
+                        break;
+
+                    case 'videojs':
+                        // Setup Video.js player
+                        player = videojs(video, {
+                            controls: true,
+                            autoplay: getLocalStorage('autoplayVideos') !== false,
+                            muted: true,
+                            loop: true,
+                            fluid: true,
+                            responsive: true,
+                            playbackRates: [0.5, 1, 1.5, 2]
+                        });
+
+                        player.on('play', () => {
+                            if (currentVideoPlayer && currentVideoPlayer !== player) {
+                                currentVideoPlayer.pause();
+                            }
+                            currentVideoPlayer = player;
+                        });
+                        break;
+
+                    default:
+                        // Setup default HTML5 player with custom controls
+                        const playPauseBtn = videoContainer.querySelector('.play-pause-btn');
+                        const muteBtn = videoContainer.querySelector('.mute-btn');
+                        const progressBar = videoContainer.querySelector('.video-progress-bar');
+                        const progress = videoContainer.querySelector('.video-progress');
+                        const scrubber = videoContainer.querySelector('.video-scrubber');
+                        const timeDisplay = videoContainer.querySelector('.video-time');
+
+                        function formatTime(seconds) {
+                            const minutes = Math.floor(seconds / 60);
+                            seconds = Math.floor(seconds % 60);
+                            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                        }
+
+                        function updateProgress() {
+                            if (!video.duration) return;
+                            const percent = (video.currentTime / video.duration) * 100;
+                            progress.style.width = `${percent}%`;
+                            scrubber.style.left = `${percent}%`;
+                            timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+                        }
+
+                        video.addEventListener('timeupdate', updateProgress);
+                        video.addEventListener('loadedmetadata', updateProgress);
+                        video.addEventListener('error', (e) => {
+                            console.error('Video error:', e);
+                            videoContainer.innerHTML = '<div class="video-error">Error loading video</div>';
+                        });
+
+                        playPauseBtn.addEventListener('click', () => {
+                            if (video.paused) {
+                                video.play().catch(e => console.error('Play error:', e));
+                                playPauseBtn.classList.remove('paused');
+                            } else {
+                                video.pause();
+                                playPauseBtn.classList.add('paused');
+                            }
+                        });
+
+                        muteBtn.addEventListener('click', () => {
+                            video.muted = !video.muted;
+                            muteBtn.classList.toggle('muted', video.muted);
+                        });
+
+                        let isDragging = false;
+                        progressBar.addEventListener('click', (e) => {
+                            if (isDragging) return;
+                            const rect = progressBar.getBoundingClientRect();
+                            const pos = (e.clientX - rect.left) / progressBar.offsetWidth;
+                            video.currentTime = pos * video.duration;
+                        });
+
+                        scrubber.addEventListener('mousedown', (e) => {
+                            isDragging = true;
+                            const onMouseMove = (e) => {
+                                const rect = progressBar.getBoundingClientRect();
+                                const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / progressBar.offsetWidth));
+                                video.currentTime = pos * video.duration;
+                            };
+                            const onMouseUp = () => {
+                                isDragging = false;
+                                document.removeEventListener('mousemove', onMouseMove);
+                                document.removeEventListener('mouseup', onMouseUp);
+                            };
+                            document.addEventListener('mousemove', onMouseMove);
+                            document.addEventListener('mouseup', onMouseUp);
+                        });
+
+                        video.addEventListener('play', () => {
+                            if (currentVideoElement && currentVideoElement !== video) {
+                                currentVideoElement.pause();
+                            }
+                            currentVideoElement = video;
+                        });
+
+                        // Set initial autoplay state
+                        video.autoplay = getLocalStorage('autoplayVideos') !== false;
+                        player = video;
+                        break;
+                }
+
+                currentVideoPlayer = player;
+                return player;
+            }
+
+            function setupGallery(postContent, postData) {
+                const galleryContainer = document.createElement('div');
+                galleryContainer.className = 'gallery-container';
+
+                const galleryMedia = postData.gallery_data.items.map(item => {
+                    const mediaId = item.media_id;
+                    let mediaUrl = postData.media_metadata[mediaId].s.u;
+                    mediaUrl = mediaUrl.replace(/&amp;/g, '&'); // Replace HTML entities
+                    return { url: mediaUrl, caption: item.caption || '' };
+                });
+
+                let currentIndex = 0;
+
+                function showImage(index) {
+                    galleryContainer.innerHTML = `
+                        <img class="gallery-image" src="${galleryMedia[index].url}" alt="Gallery Image ${index + 1}" loading="lazy">
+                        <div class="gallery-counter">${index + 1} / ${galleryMedia.length}</div>
+                        <div class="gallery-nav prev">❮</div>
+                        <div class="gallery-nav next">❯</div>
+                    `;
+
+                    const prevBtn = galleryContainer.querySelector('.prev');
+                    const nextBtn = galleryContainer.querySelector('.next');
+
+                    prevBtn.addEventListener('click', () => {
+                        currentIndex = (currentIndex - 1 + galleryMedia.length) % galleryMedia.length;
+                        showImage(currentIndex);
+                    });
+
+                    nextBtn.addEventListener('click', () => {
+                        currentIndex = (currentIndex + 1) % galleryMedia.length;
+                        showImage(currentIndex);
+                    });
+                }
+
+                showImage(currentIndex);
+                postContent.appendChild(galleryContainer);
+            }
+
+            function setupPostInteractions(postContainer, postData) {
+                const heartBtn = postContainer.querySelector('.heart-btn');
+                const commentBtn = postContainer.querySelector('.comment-btn');
+                const shareBtn = postContainer.querySelector('.share-btn');
+                const threeDotBtn = postContainer.querySelector('.three-dot-btn');
+                const description = postContainer.querySelector('.description');
+
+                heartBtn.addEventListener('click', () => {
+                    heartBtn.classList.toggle('active');
+                    const count = postContainer.querySelector('.action-count');
+                    let currentCount = parseInt(count.textContent);
+                    currentCount = heartBtn.classList.contains('active') ? currentCount + 1 : currentCount - 1;
+                    count.textContent = currentCount;
+                });
+
+                commentBtn.addEventListener('click', () => {
+                    window.open(`https://www.reddit.com${postData.permalink}`, '_blank');
+                });
+
+                shareBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(`https://www.reddit.com${postData.permalink}`).then(() => {
+                        shareMessage.classList.add('show');
+                        setTimeout(() => shareMessage.classList.remove('show'), 2000);
+                    });
+                });
+
+                threeDotBtn.addEventListener('click', () => {
+                    // Implement additional options menu if needed
+                });
+
+                description.addEventListener('click', () => {
+                    description.classList.toggle('truncated');
+                });
+            }
+
+            generateFYPFeed();
         });
     </script>
-</body>
-</html>
+
+</body></html>
